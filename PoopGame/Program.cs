@@ -1,10 +1,9 @@
-﻿namespace PoopGame
+﻿using Framework.Engine;
+
+public class Program
 {
-    internal class Program
+    static void Main()
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello, World!");
-        }
+        new StarGame().Run();
     }
 }
