@@ -25,4 +25,14 @@ public class Wall : GameObject
     {
         
     }
+
+    public bool IsInBounds(int x, int y)
+    {
+        return x >= Left && x <= Right && y >= Top && y <= Bottom;
+    }
+
+    public bool IsInBounds((int X, int Y) position)
+    {
+        return IsInBounds(position.X, position.Y);
+    }
 }

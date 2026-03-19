@@ -9,11 +9,11 @@ public class TitleScene : Scene
 
     public override void Draw(ScreenBuffer buffer)
     {
-        buffer.WriteTextCentered(6, "★ S T A R ★", ConsoleColor.Yellow);
-        buffer.WriteTextCentered(7, "G A M E", ConsoleColor.Yellow);
-        buffer.WriteTextCentered(10, "Arrow Keys(← →): Move");
-        buffer.WriteTextCentered(11, "ESC: Quit");
-        buffer.WriteTextCentered(15, "Press ENTER to Start", ConsoleColor.Green);
+        buffer.WriteTextCentered(6, "★ 별 똥 별 ★", ConsoleColor.Yellow);
+        buffer.WriteTextCentered(7, "피 하 기", ConsoleColor.Yellow);
+        buffer.WriteTextCentered(10, "좌우 화살표(← →): 움직이기");
+        buffer.WriteTextCentered(11, "ESC: 게임종료");
+        buffer.WriteTextCentered(15, "ENTER 누르면 시작", ConsoleColor.Green);
     }
 
     public override void Load()
