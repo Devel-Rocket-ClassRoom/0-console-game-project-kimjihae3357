@@ -11,7 +11,7 @@ public class Fruits : GameObject
     public (int X, int Y) FruitPosition => _fruitPosition;
     private static Random random = new Random();
     private float _timer;
-    private const float FallInterval = 0.05f;
+    private const float FallInterval = 0.08f;
 
     public FruitType Type {  get; private set; }
 
@@ -72,4 +72,5 @@ public class Fruits : GameObject
             }
         }
     }
+
 }
