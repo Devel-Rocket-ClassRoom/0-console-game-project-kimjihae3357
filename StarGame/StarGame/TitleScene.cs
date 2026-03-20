@@ -5,7 +5,7 @@ public class TitleScene : Scene
     public event GameAction StartRequested;
 
     private int colorIndex;
-    private float blinkTimer;
+    private float ColorTimer;
     private ConsoleColor[] colors =
     {
         ConsoleColor.Yellow,
@@ -39,11 +39,11 @@ public class TitleScene : Scene
             StartRequested?.Invoke();
         }
 
-        blinkTimer += deltaTime;
+        ColorTimer += deltaTime;
 
-        if (blinkTimer >= 0.2f)
+        if (ColorTimer >= 0.2f)
         {
-            blinkTimer = 0f;
+            ColorTimer = 0f;
             colorIndex = (colorIndex + 1) % colors.Length;
         }
     }

@@ -1,8 +1,4 @@
 ﻿using Framework.Engine;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
 using static Fruits;
 
 public class PlayScene : Scene
@@ -14,17 +10,32 @@ public class PlayScene : Scene
     private List<Fruits> fruits = new List<Fruits>();
     private static Random random = new Random();
 
-    private float mainTimer = 0f;
+    private float mainTimer;
+    private float feverTimer;
 
     private float starSpawnTimer;
     private float starSpawnInterval = 1.0f;
     private int maxStarCount = 3;
 
     private float fruitSpawnTimer;
-    private float fruitSpawnInterval = 1.0f;
-    private int maxFruitCount = 3;
+    private float fruitSpawnInterval = 0.5f;
+    private int maxFruitCount = 5;
+
+    private int colorIndex;
+    private ConsoleColor[] colors =
+    {
+        ConsoleColor.White,
+        ConsoleColor.Red,
+        ConsoleColor.Yellow,
+        ConsoleColor.White,
+        ConsoleColor.Green,
+        ConsoleColor.Cyan,
+        ConsoleColor.Blue,
+        ConsoleColor.Magenta
+    };
 
     private bool isGameOver;
+    private bool isFever;
     private int score = 0;
     public event GameAction PlayAgainRequested;
 
@@ -32,28 +43,35 @@ public class PlayScene : Scene
     {
         DrawGameObjects(buffer);
 
-        buffer.WriteText(0, 0, "타이머:", ConsoleColor.White);
-        buffer.WriteText(8, 0, "점수:", ConsoleColor.Yellow);
-        buffer.WriteText(11, 0, $"{score}", ConsoleColor.White);
+        buffer.WriteText(0, 0, "타이머:", ConsoleColor.Yellow);
+        buffer.WriteText(7, 0, $"{mainTimer:F1}초", ConsoleColor.White);
+        buffer.WriteText(15, 0, "점수:", ConsoleColor.Yellow);
+        buffer.WriteText(20, 0, $"{score}", ConsoleColor.White);
 
         buffer.WriteText(1, 19, "과일점수:", ConsoleColor.White);
-        buffer.WriteText(7, 19, "o", ConsoleColor.Cyan);
-        buffer.WriteText(8, 19, "10점", ConsoleColor.White);
-        buffer.WriteText(11, 19, "●", ConsoleColor.Red);
-        buffer.WriteText(12, 19, "20점", ConsoleColor.White);
-        buffer.WriteText(15, 19, "♣", ConsoleColor.Blue);
-        buffer.WriteText(16, 19, "30점", ConsoleColor.White);
+        buffer.WriteText(10, 19, "o", ConsoleColor.Cyan);
+        buffer.WriteText(11, 19, "10점", ConsoleColor.White);
+        buffer.WriteText(14, 19, "●", ConsoleColor.Red);
+        buffer.WriteText(15, 19, "20점", ConsoleColor.White);
+        buffer.WriteText(18, 19, "♣", ConsoleColor.Blue);
+        buffer.WriteText(19, 19, "30점", ConsoleColor.White);
 
         if (isGameOver)
         {
-            buffer.WriteTextCentered(6, "GMAE OVER", ConsoleColor.Red);
+            buffer.WriteTextCentered(6, "게임 오버", ConsoleColor.Red);
 
-            buffer.WriteTextCentered(8, $"Score: {score}", ConsoleColor.White);
-            buffer.WriteTextCentered(9, "Timer:", ConsoleColor.White);
+            buffer.WriteTextCentered(8, $"점수: {score}", ConsoleColor.White);
+            buffer.WriteTextCentered(9, $"타이머: {mainTimer:F1}", ConsoleColor.White);
 
-            buffer.WriteTextCentered(11, "R E T R Y ?", ConsoleColor.Red);
-            buffer.WriteTextCentered(12, "press: ENTER", ConsoleColor.Green);
+            buffer.WriteTextCentered(11, "다시 할래?", ConsoleColor.Red);
+            buffer.WriteTextCentered(12, "ENTER를 누르세요", ConsoleColor.Green);
 
+        }
+
+        if (isFever)
+        {
+            colorIndex = (colorIndex + 1) % colors.Length;
+            buffer.WriteTextCentered(3, "☆ F E V E R  T I M E ☆", colors[colorIndex]);
         }
     }
 
@@ -62,27 +80,17 @@ public class PlayScene : Scene
         isGameOver = false;
         stars.Clear();
         starSpawnTimer = 0f;
+        mainTimer = 0;
+
 
         maxStarCount = random.Next(3, 5);
-        maxFruitCount = random.Next(2, 3);
+        maxFruitCount = random.Next(2, 5);
 
         wall = new Wall(this);
         AddGameObject(wall);
 
         player = new Player(this);
         AddGameObject(player);
-
-        Star star = new Star(this);
-        stars.Add(star);
-        AddGameObject(star);
-
-        Fruits fruit = new Fruits(this);
-        fruits.Add(fruit);
-        AddGameObject(fruit);
-
-        
-
-        
     }
 
     public override void Unload()
@@ -93,6 +101,8 @@ public class PlayScene : Scene
 
     public override void Update(float deltaTime)
     {
+
+
         if (isGameOver)
         {
             if (Input.IsKeyDown(ConsoleKey.Enter))
@@ -101,36 +111,69 @@ public class PlayScene : Scene
             }
             return;
         }
+        mainTimer += deltaTime;
         UpdateGameObjects(deltaTime);
 
-        starSpawnTimer += deltaTime;
-        fruitSpawnTimer += deltaTime;
-
-
-        if (stars.Count < maxStarCount && starSpawnTimer >= starSpawnInterval)
+        // 일반
+        if (!isFever)
         {
-            starSpawnTimer = 0f;
+            starSpawnTimer += deltaTime;
+            fruitSpawnTimer += deltaTime;
 
-            Star star = new Star(this);
-            stars.Add(star);
-            AddGameObject(star);
+            if (stars.Count < maxStarCount && starSpawnTimer >= starSpawnInterval)
+            {
+                starSpawnTimer = 0f;
 
-            starSpawnInterval = random.Next(10, 20) * 0.1f;
+                Star star = new Star(this);
+                stars.Add(star);
+                AddGameObject(star);
+
+                starSpawnInterval = random.Next(10, 20) * 0.3f;
+
+            }
+
+            if (fruits.Count < maxFruitCount && fruitSpawnTimer >= fruitSpawnInterval)
+            {
+                fruitSpawnTimer = 0f;
+
+                Fruits fruit = new Fruits(this, isFever);
+                fruits.Add(fruit);
+                AddGameObject(fruit);
+            }
+        }
+        // 피버 타임 일때
+        if (isFever)
+        {
             
+            for (int i = stars.Count - 1; i >= 0; i--)
+            {
+                RemoveGameObject(stars[i]);
+                stars.RemoveAt(i);
+            }
+
+            fruitSpawnTimer += deltaTime;
+            feverTimer += deltaTime;
+
+            if (fruits.Count < maxFruitCount && fruitSpawnTimer >= fruitSpawnInterval)
+            {
+                fruitSpawnTimer = 0f;
+
+                Fruits fruit = new Fruits(this, isFever);
+                fruits.Add(fruit);
+                AddGameObject(fruit);
+            }
+
+            if (feverTimer >= 5.0f)
+            {
+                player.MoveInterval = 0.05f;
+                maxFruitCount = 5;
+                fruitSpawnInterval = 0.5f;
+                feverTimer = 0f;
+                fruitSpawnTimer = 0f;
+                isFever = false;
+            }
         }
 
-        if (fruits.Count < maxFruitCount && fruitSpawnTimer >= fruitSpawnInterval)
-        {
-            fruitSpawnTimer = 0f;
-
-            Fruits fruit = new Fruits(this);
-            fruits.Add(fruit);
-            AddGameObject(fruit);
-
-            fruitSpawnInterval = random.Next(10, 20) * 0.1f;
-
-        }
-        
         // 별 맞으면 게임오버
         for (int i = 0; i < stars.Count; i++)
         {
@@ -142,7 +185,7 @@ public class PlayScene : Scene
                 return;
             }
             // 바닥 충돌처리 (별 사라짐)
-            else if (stars[i].StarPosition.Y == Wall.Bottom)
+            if (stars[i].StarPosition.Y > Wall.Bottom)
             {
                 RemoveGameObject(stars[i]);
                 stars.RemoveAt(i);
@@ -151,7 +194,7 @@ public class PlayScene : Scene
         }
 
         // 과일 먹으면 점수 UP
-        for (int j = 0;  j < fruits.Count; j++ )
+        for (int j = 0; j < fruits.Count; j++)
         {
             if (fruits[j].FruitPosition.X == player.PlayerPosition.X &&
                 fruits[j].FruitPosition.Y == player.PlayerPosition.Y)
@@ -169,23 +212,38 @@ public class PlayScene : Scene
                     case FruitType.fruit3:
                         score += 30;
                         break;
+
+                    case FruitType.feverFruit:
+                        FeverTime();
+                        isFever = true;
+                        break;
                 }
                 RemoveGameObject(fruits[j]);
                 fruits.RemoveAt(j);
                 j--;
+                continue;
             }
             // 바닥 충돌처리 (과일 사라짐)
-            else if (fruits[j].FruitPosition.Y == Wall.Bottom)
+            if (fruits[j].FruitPosition.Y > Wall.Bottom)
             {
                 RemoveGameObject(fruits[j]);
                 fruits.RemoveAt(j);
                 j--;
             }
         }
+
+
     }
 
     public void FeverTime()
     {
-        
+
+        player.MoveInterval = 0.01f;
+        feverTimer = 0;
+        starSpawnTimer = 0f;
+
+        maxFruitCount = 30;
+        fruitSpawnInterval = 0.05f;
+
     }
 }

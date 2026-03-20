@@ -5,12 +5,15 @@ using System.Text;
 
 public class Player : GameObject
 {
-    //private const float k_MoveInterval = 0.15;
     private (int X, int Y) _playerPosition;
     public (int X, int Y) PlayerPosition => _playerPosition;
 
     private float moveTimer;
-    private float moveSpeed = 0.05f;
+    private float _moveInterval = 0.05f;
+    public float MoveInterval {
+        get => _moveInterval;
+        set => _moveInterval = value;
+    }
 
     public Player(Scene scene) : base(scene)
     {
@@ -21,13 +24,13 @@ public class Player : GameObject
 
     public override void Draw(ScreenBuffer buffer)
     {
-        buffer.SetCell(_playerPosition.X, _playerPosition.Y, 'A', ConsoleColor.Green);
+        buffer.WriteText(_playerPosition.X, _playerPosition.Y, "A", ConsoleColor.Green);
     }
 
     public override void Update(float deltaTime)
     {
         moveTimer += deltaTime;
-        if (moveTimer >= moveSpeed)
+        if (moveTimer >= _moveInterval)
         {
             moveTimer = 0f;
 
@@ -46,6 +49,15 @@ public class Player : GameObject
         else if (Input.IsKey(ConsoleKey.RightArrow))
         {
             _playerPosition.X++;
+        }
+
+        if (_playerPosition.X == Wall.Left)
+        {
+            _playerPosition.X++;
+        }
+        else if (_playerPosition.X == Wall.Right)
+        {
+            _playerPosition.X--;
         }
 
     }
