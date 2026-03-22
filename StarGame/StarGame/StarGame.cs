@@ -18,7 +18,7 @@ public class StarGame : GameApp
 
     protected override void Initialize()
     {
-        ChangeToTile();
+        ChangeToTitle();
     }
 
     protected override void Update(float deltaTime)
@@ -32,7 +32,7 @@ public class StarGame : GameApp
 
     }
 
-    private void ChangeToTile()
+    private void ChangeToTitle()
     {
         var title = new TitleScene();
         title.StartRequested += ChangeToPlay;
@@ -42,7 +42,7 @@ public class StarGame : GameApp
     private void ChangeToPlay()
     {
         var play = new PlayScene();
-        play.PlayAgainRequested += ChangeToTile;
+        play.PlayAgainRequested += ChangeToTitle;
         _scenes.ChangeScene(play);
     }
 }
