@@ -64,15 +64,12 @@ public class Star : GameObject
         {
             _timer -= FallInterval;
             _starPosition.Y++;
-
+            
             if (_tailLength > 0)
             {
                 _tailLength--;
             }
-            if (_starPosition.Y > Wall.Bottom)
-            {
-                Spawn();
-            }
+
         }
     }
 }

@@ -78,7 +78,6 @@ public class PlayScene : Scene
     public override void Load()
     {
         isGameOver = false;
-        stars.Clear();
         starSpawnTimer = 0f;
         mainTimer = 0;
 
@@ -96,7 +95,7 @@ public class PlayScene : Scene
     public override void Unload()
     {
         ClearGameObjects();
-        stars.Clear();
+        //stars.Clear();
     }
 
     public override void Update(float deltaTime)
@@ -128,7 +127,7 @@ public class PlayScene : Scene
                 stars.Add(star);
                 AddGameObject(star);
 
-                starSpawnInterval = random.Next(10, 20) * 0.3f;
+                starSpawnInterval = random.Next(0, 15) * 0.1f;
 
             }
 
